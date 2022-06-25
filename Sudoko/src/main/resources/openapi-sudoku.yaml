@@ -1,0 +1,139 @@
+openapi: 3.0.0
+info:
+  description: "Diese Dokumentation beschreibt die API, die in der Testaufgabe bereitgestellt werden soll um Sudokus zu lösen. <br/> Sudokus sind Zahlenrätsel, die in einem Gitter der Größe 9 × 9 abgebildet sind. In dem Gitter sind einige Kästchen mit Zahlen von 1 bis 9 ausgefüllt. Die Aufgabe besteht darin, in die restlichen Kästchen Zahlen von 1 bis 9 einzutragen, so dass folgende Bedingungen erfullt sind<br>
+  <ul>
+  <li>In jeder Zeile kommt jede Zahl genau einmal vor.</li>
+  <li>In jedem (durch die dicken Linien abgegrenzten) 3 × 3-Quadrat kommt jede Zahl
+genau einmal vor.</li>
+  <li>In jeder Spalte kommt jede Zahl genau einmal vor.</li>
+  </ul>"
+  version: "1.0.0"
+  title: "Sudoku Solver"
+  contact:
+    email: "jan-hendrik.popp@fabit.us"
+externalDocs:
+  description: "Sudoku - Documentation"
+  url: "https://sudoku.com/de/wie-man-spielt/sudoku-regeln-fur-komplette-anfanger/"
+
+servers:
+  - url: http://localhost:8080/sudoku
+    description: Optional server description, e.g. Main (production) server
+
+tags:
+- name: "validate"
+  description: "Validierung von Eingabedaten"
+- name: "display"
+  description: "Visualisierung der Eingabedaten"
+- name: "solve"
+  description: "Lösen eines Sudokus"
+
+paths:
+  /validate:
+    get:
+      tags:
+      - "validate"
+      summary: "Validierung von Eingabedaten"
+      description: "Mit diesem Endpunkt kann der Eingabewert validiert werden, der ein Sudoku repräsentiert. Überprüft wird dabei, ob <br>
+      <ul>
+      <li>die Länge der Eingabe korrekt ist, 81 Zeichen für ein 9x9 Sudoku</li>
+      <li>ob die Zeichen der Eingabe erlaubt sind, bei einem 9x9 Feld sollten 0-9 erlaubt sein, wobei 0 für ein leeres Feld steht.</li>
+      <li>ob keine Sudoku-Regeln verletzt werden, beispielsweise darf bei einem 9x9 Feld die Zahl 1 nur einmal pro Spalte und Reihe gesetzt sein</li>
+      </ul>
+      "
+      parameters:
+      - $ref: '#/components/parameters/sudokuParam'
+      responses:
+        "400":
+          description: "Bad Request - Der Eingabewert ist nicht valide."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SudokuValidateError'
+        "200":
+          description: "Ok - Der Eingabewert ist valide."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sudoku'
+  /display:
+    get:
+      tags:
+      - "display"
+      summary: "Visualisierung von Eingabedaten"
+      description: "Der Endpunkt rendert eine kleine HTML-Seite. Auf dieser Seite wird das Sudoku in einer Tabelle ausgegeben, sodass der technische Wert eines Sudokus visuell für jeden dargestellt werden kann."
+      parameters:
+      - $ref: '#/components/parameters/sudokuParam'
+      responses:
+        "400":
+          description: "Bad Request - Der Eingabewert ist nicht valide."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SudokuValidateError'
+        "200":
+          description: "Ok."
+  
+  /solve:
+    get:
+      tags:
+      - "solve"
+      summary: "Lösen eines Sudokus"
+      description: "Der Endpunkt versucht anhand der Eingabe ein Sudoku zu lösen. Können nicht alle Felder ausgefüllt werden, wird weiterhin eine 0 für das leere Feld in der Antwort ausgegeben."
+      parameters:
+      - $ref: '#/components/parameters/sudokuParam'
+      responses:
+        "400":
+          description: "Bad Request - Der Eingabewert ist nicht valide."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SudokuValidateError'
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sudoku'
+
+components:
+  schemas:
+    Sudoku:
+      properties:
+        values:
+          type: string
+          example: "534678912672195348198342567859761423426853791713924856961537284287419635345286179"
+          description: "Die Eigenschaft enthält alle Zeichen eines Sudokus. Dabei Werten alle Werte nach einander geschreiben. Die Reihenfolge ist dabei von links nach rechts und von oben nach unten. Der Wert 0 repräsentiert ein leeres Feld."
+        size:
+          type: integer
+          example: 9
+          default: 9
+          description: "Die Eigenschaft gibt an, welche größe ein Sudoku-Feld hat. Per Default ist es 9, sodass die ausgegeben Zeichen ein 9x9 Sudoku repräsentieren."
+          
+    SudokuValidateError:
+      properties:
+        timestamp:
+          type: string
+          example: "2020-12-26T19:38:09.426+00:00"
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Duplicated number 1 in row 1."
+        path:
+          type: string
+          example: "/sudoku/validate"
+
+
+  parameters:
+    sudokuParam:
+      in: query
+      name: sudoku
+      required: true
+      schema:
+        type: string
+        example: "000000010400000000020000000000050407008000300001090000300400200050100000000806000"
+      description: "Der Parameter enthält alle Zeichen eines Sudokus. Dabei Werten alle Werte nach einander geschreiben. Die Reihenfolge ist dabei von links nach rechts und von oben nach unten. Der Wert 0 repräsentiert ein leeres Feld."
