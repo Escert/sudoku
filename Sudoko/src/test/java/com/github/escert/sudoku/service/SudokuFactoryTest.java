@@ -1,5 +1,6 @@
 package com.github.escert.sudoku.service;
 
+import com.github.escert.sudoku.SudokuTestData;
 import com.github.escert.sudoku.model.Sudoku;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,22 +21,10 @@ class SudokuFactoryTest {
 	@Nested
 	class FromString {
 
-		private static final String VALID_SUDOKU = normalizeInput("""
-				000000000
-				000000000
-				000000000
-				000000000
-				000000000
-				000000000
-				000000000
-				000000000
-				000000000
-				""");
-
 		@Test
 		void shouldCreateSudoku_whenInputIsValid() {
 			//given
-			String input = VALID_SUDOKU;
+			String input = SudokuTestData.VALID_SUDOKU;
 
 			//when
 			Sudoku sudoku = testee.fromString(input);
@@ -47,7 +36,7 @@ class SudokuFactoryTest {
 		@Test
 		void shouldThrow_whenInputIsTooLong() {
 			//given
-			String input = VALID_SUDOKU + "0";
+			String input = SudokuTestData.VALID_SUDOKU + "0";
 
 			//when / then
 			assertThatThrownBy(() -> testee.fromString(input))
@@ -58,7 +47,7 @@ class SudokuFactoryTest {
 		@Test
 		void shouldThrow_whenInputIsTooShort() {
 			//given
-			String input = VALID_SUDOKU.substring(0, VALID_SUDOKU.length() - 1);
+			String input = SudokuTestData.VALID_SUDOKU.substring(0, SudokuTestData.VALID_SUDOKU.length() - 1);
 
 			//when / then
 			assertThatThrownBy(() -> testee.fromString(input))
@@ -69,7 +58,7 @@ class SudokuFactoryTest {
 		@Test
 		void shouldThrow_whenInputContainsIllegalValue() {
 			//given
-			String input = VALID_SUDOKU.substring(0, VALID_SUDOKU.length() - 1) + "A";
+			String input = SudokuTestData.VALID_SUDOKU.substring(0, SudokuTestData.VALID_SUDOKU.length() - 1) + "A";
 
 			//when / then
 			assertThatThrownBy(() -> testee.fromString(input))
@@ -80,7 +69,7 @@ class SudokuFactoryTest {
 		@Test
 		void shouldThrow_whenRowContainsSameValueMultipleTimes() {
 			//given
-			String input = normalizeInput("""
+			String input = SudokuTestData.normalizeInput("""
 					000000000
 					000000000
 					100000100
@@ -101,7 +90,7 @@ class SudokuFactoryTest {
 		@Test
 		void shouldThrow_whenColumnContainsSameValueMultipleTimes() {
 			//given
-			String input = normalizeInput("""
+			String input = SudokuTestData.normalizeInput("""
 					000020000
 					000000000
 					000000000
@@ -122,7 +111,7 @@ class SudokuFactoryTest {
 		@Test
 		void shouldThrow_whenSquareContainsSameValueMultipleTimes() {
 			//given
-			String input = normalizeInput("""
+			String input = SudokuTestData.normalizeInput("""
 					000000000
 					000000000
 					000000000
@@ -139,9 +128,5 @@ class SudokuFactoryTest {
 					.isInstanceOf(SudokuValidationException.class)
 					.hasMessage("Duplicated value 3 in square 6");
 		}
-	}
-
-	private static String normalizeInput(String input) {
-		return input.replaceAll("\r|\n", "");
 	}
 }

@@ -5,6 +5,7 @@ import com.github.escert.sudoku.model.CellGroup;
 import com.github.escert.sudoku.model.Sudoku;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -20,15 +21,18 @@ public class SudokuFactory {
 		List<CellGroup> rows = createEmptyCellGroups(SIZE);
 		List<CellGroup> columns = createEmptyCellGroups(SIZE);
 		List<CellGroup> squares = createEmptyCellGroups(SIZE);
+		List<Cell> cells = new ArrayList<>(input.length());
 		int sizeOfSquare = Double.valueOf(Math.sqrt(SIZE)).intValue();
 
 		for (int row = 0; row < SIZE; row++) {
 			for (int column = 0; column < SIZE; column++) {
-				new Cell(
-						input.charAt(row * SIZE + column),
-						rows.get(row),
-						columns.get(column),
-						squares.get(Math.floorDiv(row, sizeOfSquare) * sizeOfSquare + column / sizeOfSquare)
+				cells.add(
+						new Cell(
+								input.charAt(row * SIZE + column),
+								rows.get(row),
+								columns.get(column),
+								squares.get(Math.floorDiv(row, sizeOfSquare) * sizeOfSquare + column / sizeOfSquare)
+						)
 				);
 			}
 		}
@@ -37,7 +41,7 @@ public class SudokuFactory {
 		verifyCellGroupsIsValid(columns, "column");
 		verifyCellGroupsIsValid(squares, "square");
 
-		return new Sudoku(rows, columns, squares);
+		return new Sudoku(cells, rows, columns, squares);
 	}
 
 	private void verifyInputSize(String input) {
