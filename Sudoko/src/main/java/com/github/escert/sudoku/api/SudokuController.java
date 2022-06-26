@@ -2,12 +2,14 @@ package com.github.escert.sudoku.api;
 
 import com.github.escert.sudoku.model.Sudoku;
 import com.github.escert.sudoku.service.SudokuFactory;
+import com.github.escert.sudoku.service.SudokuHtmlCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -16,6 +18,8 @@ public class SudokuController {
 
 	@Autowired
 	private SudokuFactory sudokuFactory;
+	@Autowired
+	private SudokuHtmlCreator sudokuHtmlCreator;
 
 	/**
 	 * Mit diesem Endpunkt kann der Eingabewert validiert werden, der ein Sudoku repräsentiert. Überprüft wird dabei, ob <br>
@@ -35,5 +39,21 @@ public class SudokuController {
 	public ResponseEntity<SudokuDto> validate(@RequestParam(name = "sudoku") String sudokuInput) {
 		Sudoku sudoku = sudokuFactory.fromString(sudokuInput);
 		return ResponseEntity.ok(SudokuDto.from(sudoku));
+	}
+
+	/**
+	 * Der Endpunkt rendert eine kleine HTML-Seite. Auf dieser Seite wird das Sudoku in einer Tabelle ausgegeben, sodass der technische Wert eines Sudokus visuell für jeden dargestellt werden kann.
+	 * <p>
+	 * Returns:
+	 * <ul>
+	 * <li>400 - Bad Request - Der Eingabewert ist nicht valide.</li>
+	 * <li>200 - Ok</li>
+	 * </ul>
+	 */
+	@GetMapping(value = "/display", produces = MediaType.TEXT_HTML_VALUE)
+	@ResponseBody
+	public String display(@RequestParam(name = "sudoku") String sudokuInput) {
+		Sudoku sudoku = sudokuFactory.fromString(sudokuInput);
+		return sudokuHtmlCreator.createSimpleHtmlPage(sudoku);
 	}
 }

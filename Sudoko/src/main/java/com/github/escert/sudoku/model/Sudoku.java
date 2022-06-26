@@ -1,5 +1,6 @@
 package com.github.escert.sudoku.model;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Sudoku {
@@ -17,7 +18,19 @@ public class Sudoku {
 	}
 
 	public List<Cell> getCells() {
-		return cells;
+		return Collections.unmodifiableList(cells);
+	}
+
+	public List<CellGroup> getRows() {
+		return Collections.unmodifiableList(rows);
+	}
+
+	public List<CellGroup> getColumns() {
+		return Collections.unmodifiableList(columns);
+	}
+
+	public List<CellGroup> getSquares() {
+		return Collections.unmodifiableList(squares);
 	}
 
 	public int getSize() {
