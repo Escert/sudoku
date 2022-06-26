@@ -103,4 +103,37 @@ class SudokuControllerIntegrationTest {
 		}
 	}
 
+	@Nested
+	class Solve {
+
+		@Test
+		void shouldReturnSolvedSudoku_whenValid() throws Exception {
+			//given
+			String input = SudokuTestData.VALID_SUDOKU;
+
+			//when
+			ResultActions result = mockMvc.perform(get("/solve")
+					.queryParam("sudoku", input));
+
+			//then
+			result.andExpect(status().isOk())
+					.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+					.andExpect(jsonPath("$.size").value(9))
+					.andExpect(jsonPath("$.values").value("123456789456897123789123456214365897365978214897214365531642978642789531978531642"));
+		}
+
+		@Test
+		void shouldReturnError_whenInputIsInvalid() throws Exception {
+			//given
+			String tooLongInput = SudokuTestData.VALID_SUDOKU + "0";
+
+			//when
+			ResultActions result = mockMvc.perform(get("/solve")
+					.queryParam("sudoku", tooLongInput));
+
+			//then
+			result.andExpect(status().isBadRequest());
+		}
+	}
+
 }

@@ -3,6 +3,7 @@ package com.github.escert.sudoku.api;
 import com.github.escert.sudoku.model.Sudoku;
 import com.github.escert.sudoku.service.SudokuFactory;
 import com.github.escert.sudoku.service.SudokuHtmlCreator;
+import com.github.escert.sudoku.service.SudokuSolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ public class SudokuController {
 	private SudokuFactory sudokuFactory;
 	@Autowired
 	private SudokuHtmlCreator sudokuHtmlCreator;
+	@Autowired
+	private SudokuSolver sudokuSolver;
+
 
 	/**
 	 * Mit diesem Endpunkt kann der Eingabewert validiert werden, der ein Sudoku repräsentiert. Überprüft wird dabei, ob <br>
@@ -55,5 +59,21 @@ public class SudokuController {
 	public String display(@RequestParam(name = "sudoku") String sudokuInput) {
 		Sudoku sudoku = sudokuFactory.fromString(sudokuInput);
 		return sudokuHtmlCreator.createSimpleHtmlPage(sudoku);
+	}
+
+	/**
+	 * Der Endpunkt versucht anhand der Eingabe ein Sudoku zu lösen. Können nicht alle Felder ausgefüllt werden, wird weiterhin eine 0 für das leere Feld in der Antwort ausgegeben.
+	 * <p>
+	 * Returns:
+	 * <ul>
+	 * <li>400 - Bad Request - Der Eingabewert ist nicht valide.</li>
+	 * <li>200 - Ok</li>
+	 * </ul>
+	 */
+	@GetMapping(value = "/solve")
+	public ResponseEntity<SudokuDto> solve(@RequestParam(name = "sudoku") String sudokuInput) {
+		Sudoku sudoku = sudokuFactory.fromString(sudokuInput);
+		sudokuSolver.solve(sudoku);
+		return ResponseEntity.ok(SudokuDto.from(sudoku));
 	}
 }

@@ -27,4 +27,15 @@ public class Cell {
 	public char getValue() {
 		return value;
 	}
+
+	public void setValue(char value) {
+		if (!isModifiable) {
+			throw new UnsupportedOperationException("Cell is not modifiable");
+		}
+		this.value = value;
+	}
+
+	public boolean isValid() {
+		return row.isValid() && column.isValid() && square.isValid();
+	}
 }
